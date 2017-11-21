@@ -50,6 +50,6 @@ clean:
 可以使用不同于源文件的格式来输出目的文件
 ```
 * `目标`
-* ![目标]()
+* ![目标](https://github.com/GalenDeng/Embedded-Linux/blob/master/GPIO%E5%AE%9E%E9%AA%8C/%E7%9B%AE%E6%A0%87.PNG)
 * `点亮LED的操作原理`
-* ![点亮LED的操作原理]()
+* ![点亮LED的操作原理](https://github.com/GalenDeng/Embedded-Linux/blob/master/GPIO%E5%AE%9E%E9%AA%8C/%E7%82%B9%E4%BA%AELED.PNG)
