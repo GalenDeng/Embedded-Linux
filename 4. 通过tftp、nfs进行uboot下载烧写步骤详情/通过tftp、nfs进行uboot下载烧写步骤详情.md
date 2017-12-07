@@ -45,7 +45,7 @@ mtdparts: mtdparts=nandflash0:256k@0(bootloader),128k(params),2m(kernel),-(root)
 ## NFS烧写内核步骤
 1. nfs 30000000 192.168.99.140:/work/nfs_root/uImage
 // 这里的nfs_root必须是被支持挂载的，可以在 /etc/export查看，如：
-![被支持的挂载文件目录]()
+![被支持的挂载文件目录](https://github.com/GalenDeng/Embedded-Linux/blob/master/4.%20%E9%80%9A%E8%BF%87tftp%E3%80%81nfs%E8%BF%9B%E8%A1%8Cuboot%E4%B8%8B%E8%BD%BD%E7%83%A7%E5%86%99%E6%AD%A5%E9%AA%A4%E8%AF%A6%E6%83%85/%E5%8F%AF%E4%BB%A5%E6%8C%82%E8%BD%BD%E7%9A%84%E7%9B%AE%E5%BD%95%E8%AE%BE%E7%BD%AE.JPG)
 *  /work/nfs_root *(rw,sync,no_root_squash)  // 在 /etc/exports 添加 然后重启 sudo /etc/init.d/nfs-kernel-server restart即可
 2. nand erase kernel
 3. nand write.yaffs2 30000000 kernel 
