@@ -1,4 +1,7 @@
 ## u-boot分析之编译体验 (2017.12.08)
+## bootloader与内核的交互方式
+![bootloader与内核的交互方式](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/bootloader%E4%B8%8E%E5%86%85%E6%A0%B8%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E5%BC%8F.jpg)
+
 ## windows和linux系统启动过程的对比
 ![windows和linux系统启动过程的对比](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/windows%E5%92%8Clinux%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E7%9A%84%E5%AF%B9%E6%AF%94.JPG)
 1. `打补丁文件解释(.patch)`
