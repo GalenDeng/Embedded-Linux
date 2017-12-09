@@ -47,7 +47,7 @@ mkconfig        //确实存在该文件
 * $(@:_config=) 等价于 100ask24x0
 6. @$(MKCONFIG) $(@:_config=) arm arm920t 100ask24x0 NULL s3c24x0 等价于
 * mkconfig  100ask24x0 arm arm920t 100ask24x0 NULL s3c24x0
-7. `mkconfig源码分析`
+7. `mkconfig源码分析`---`配置过程`
 ```
 APPEND=no	# Default: Create new config file
 BOARD_NAME=""	# Name to print in make output
@@ -103,38 +103,61 @@ fi
 rm -f asm-$2/arch       // rm -f asm-arm/arch
 
 if [ -z "$6" -o "$6" = "NULL" ] ; then     // -z : 字符串为0则为真 -o : 或者  第七个参数为空或者为NULL的话就执行 then 的操作
-	ln -s ${LNPREFIX}arch-$3 asm-$2/arch
+	ln -s ${LNPREFIX}arch-$3 asm-$2/arch   
 else
-	ln -s ${LNPREFIX}arch-$6 asm-$2/arch
+	ln -s ${LNPREFIX}arch-$6 asm-$2/arch  // LNPREFIX 没定义，为空 源码为：ln -s arch-s3c24x0 asm-arm/arch
+// galen@HD66:/work/system/u-boot-1.1.6/include$ ls -l asm-arm/arch
+// lrwxrwxrwx 1 galen galen 12 Dec  8 05:40 asm-arm/arch -> arch-s3c24x0
 fi
 
 if [ "$2" = "arm" ] ; then
 	rm -f asm-$2/proc
-	ln -s ${LNPREFIX}proc-armv asm-$2/proc
+	ln -s ${LNPREFIX}proc-armv asm-$2/proc		//建立链接文件 ln -s proc-armv asm-arm/proc
 fi
 
 #
-# Create include file for Make
+# Create include file for Make 				    //生成一个配置文件
 #
-echo "ARCH   = $2" >  config.mk
-echo "CPU    = $3" >> config.mk
-echo "BOARD  = $4" >> config.mk
+echo "ARCH   = $2" >  config.mk				    // 新建(或者是覆盖一个已有的config.md文件)一个文件 config.mk
+echo "CPU    = $3" >> config.mk					// 追加 CPU    = $3 到 config.mk文件中
+echo "BOARD  = $4" >> config.mk					// 追加 BOARD  = $4 到 config.mk文件中
 
-[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk
+/*
+config.mk 里面的内容为：
+ARCH   = arm 
+CPU    = arm920t
+BOARD  = 100ask24x0
+*/
 
-[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk
+[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk  // 如果第6个参数存在，并且该参数不等于																	   // NULL,再追加内容 VENDOR =NULL
 
+[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk  // 如果第6个参数存在，并且该参数不等于
+																   // NULL,再追加内容 SOC =s3c24x0
+/* 
+galen@HD66:/work/system/u-boot-1.1.6/include$ cat config.mk 
+ARCH   = arm
+CPU    = arm920t
+BOARD  = 100ask24x0
+SOC    = s3c24x0
+*/
 #
-# Create board specific header file
+# Create board specific header file				// 创建单板相关的头文件
 #
-if [ "$APPEND" = "yes" ]	# Append to existing config file
+if [ "$APPEND" = "yes" ]	# Append to existing config file   //  Makefile中查看 APPEND=no
 then
 	echo >> config.h
 else
-	> config.h		# Create new config file
+	> config.h		# Create new config file		// > : 表示新建文件
 fi
 echo "/* Automatically generated - do not edit */" >>config.h
-echo "#include <configs/$1.h>" >>config.h
+echo "#include <configs/$1.h>" >>config.h			//  #include <configs/100ask24x0.h>
+
+/*
+galen@HD66:/work/system/u-boot-1.1.6/include$ cat config.h
+/* Automatically generated - do not edit */
+#include <configs/100ask24x0.h>
+
+*/
 
 exit 0
 ```
