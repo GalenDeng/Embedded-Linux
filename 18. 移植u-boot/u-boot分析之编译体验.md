@@ -272,6 +272,7 @@ SECTIONS
 	.text      :								// 定义了一个名为 “.text” 的代码段,内容为 { }的内容
 	{
 	  cpu/arm920t/start.o	(.text)				// 先排放 cpu/arm920t/start.o 的 代码段 (.text)
+	  											// 因为 cpu/arm920t/start.o 放在了程序的最前面，所以u-boot的入口点在  cpu/arm920t/start.S
           board/100ask24x0/boot_init.o (.text)  // 后排放 board/100ask24x0/boot_init.o 的 代码段 (.text)
 	  *(.text)									// 其他文件的所有代码段
 	}
