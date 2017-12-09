@@ -1,5 +1,6 @@
 ## u-boot分析之源码阶段 (2017.12.09)
 * bss : 没有初始化的静态变量或全局变量 + 初始值为0的静态变量或全局变量
+* svc : 管理模式
 ## u-boot内存使用情况
 ![u-boot内存使用情况](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/u-boot%E5%88%86%E6%9E%90%E4%B9%8B%E6%BA%90%E7%A0%81%E9%98%B6%E6%AE%B5%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/u-boot%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5.JPG)
 ## u-boot分析
