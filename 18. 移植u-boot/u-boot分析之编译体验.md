@@ -1,4 +1,7 @@
 ## u-boot分析之编译体验 (2017.12.08)
+* u-boot : Universal Boot Loader 通用Bootloader
+## u-boot的目录结构说明
+![u-boot的目录结构说明](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/u-boot%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E8%AF%B4%E6%98%8E.JPG)
 ## bootloader与内核的交互方式
 ![bootloader与内核的交互方式](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/bootloader%E4%B8%8E%E5%86%85%E6%A0%B8%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E5%BC%8F.jpg)
 
