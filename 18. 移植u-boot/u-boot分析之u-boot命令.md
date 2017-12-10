@@ -41,7 +41,7 @@ __attribute__  ： 结构体的属性,强制把section段属性设置为 .u_boot
 #	__u_boot_cmd_end = .;
 */
 ```
-##  `创建一个hello的u-oot命令`
+##  `创建一个hello的u-boot命令`
 1. `新建cmd_hello.c 保存在 /common/下 ,内容如下：`
 ```
 #include <common.h>
