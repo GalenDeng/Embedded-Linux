@@ -72,7 +72,7 @@ U_BOOT_CMD(
 ```
 2. `vim /work/system/u-boot-1.1.6/common/Makefile 添加 cmd_hello.o` 
 * 注意这里的 cmd_hello 必须与添加到 /common/目录下的文件名相同(不包括后缀)
-* virtex2.o xilinx.o crc16.o xyzModem.o cmd_mac.o hello_cmd.o	
+* virtex2.o xilinx.o crc16.o xyzModem.o cmd_mac.o cmd_hello.o	
 3. `cd /work/system/u-boot-1.1.6/`	
 4. `make distclean`
 ```
