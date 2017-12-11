@@ -101,7 +101,7 @@ argv[0]: helloargv[1]: argargv[2]: gagOpenJTAG>
 8. `实现 hello 的 u-boot命令`
 ## u-boot命令图解
 ![u-boot命令图解](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/u-boot%E5%91%BD%E4%BB%A4%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/u-boot%E5%91%BD%E4%BB%A4%E5%9B%BE%E8%A7%A3.JPG)
-9. `flinfo --- 查看 NOR flash 的信息`
+9. `flinfo --- 查看 NOR flash 的信息` -- `flash information`
 * 可以查看 NOR flash 的型号、型号、各扇区的开始地址、是否只读等信息
 ```
 OpenJTAG> flinfo
