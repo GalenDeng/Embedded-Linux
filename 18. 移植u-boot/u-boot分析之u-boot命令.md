@@ -101,3 +101,39 @@ argv[0]: helloargv[1]: argargv[2]: gagOpenJTAG>
 8. `实现 hello 的 u-boot命令`
 ## u-boot命令图解
 ![u-boot命令图解](https://github.com/GalenDeng/Embedded-Linux/blob/master/18.%20%E7%A7%BB%E6%A4%8Du-boot/u-boot%E5%91%BD%E4%BB%A4%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/u-boot%E5%91%BD%E4%BB%A4%E5%9B%BE%E8%A7%A3.JPG)
+9. `flinfo --- 查看 NOR flash 的信息`
+* 可以查看 NOR flash 的型号、型号、各扇区的开始地址、是否只读等信息
+```
+OpenJTAG> flinfo
+
+Bank # 1: MXIC MX29LV160B FLASH (16 x 16)  Size: 2 MB in 35 Sectors
+  AMD Standard command set, Manufacturer ID: 0xC2, Device ID: 0x2249
+  Erase timeout: 30000 ms, write timeout: 100 ms
+
+  Sector Start Addresses:
+  00000000   RO   00004000   RO   00006000   RO   00008000   RO   00010000   RO 
+  00020000   RO   00030000   RO   00040000        00050000        00060000      
+  00070000        00080000        00090000        000A0000        000B0000      
+  000C0000        000D0000        000E0000        000F0000        00100000      
+  00110000        00120000        00130000        00140000        00150000      
+  00160000        00170000        00180000        00190000        001A0000      
+  001B0000        001C0000        001D0000        001E0000        001F0000      
+OpenJTAG> 
+```
+* MX29LV160B : NOR flash 的型号
+*  Size: 2 MB : NOR flash 的 大小
+* RO : 只读  处于写保护状态
+* 对于只读的扇区，在擦除、烧写它之前，要先解除写保护，
+* 命令 ： protect off all //解除所有的 NOR Flash 的写保护
+* erase : 擦除 
+```
+erase start end : 擦除地址范围 start - end 
+erase start + len : 擦除地址范围 start ~ start + tlen - 1
+erase all : 擦除所有 NOR Flash
+```
+* 这里若要擦除前五个分区，命令为： erase 0 0x2ffff ,而不是 erase 0 0x30000
+10. `go 命令`
+```
+* tftp 0x30000000 test.bin or nfs 0x30000000 192.168.99.140:/work/nfs_root/test.bin // 下载可执行文件到内存中
+* go 0x30000000			// 直接执行程序
+```
