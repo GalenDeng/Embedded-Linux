@@ -90,7 +90,7 @@ Failed to execute /linuxrc.  Attempting defaults...
 Kernel panic - not syncing: No init found.  Try passing init= option to kernel.
 ```
 ## 内核配置的具体过程
-![内核配置的具体过程](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E5%90%84%E4%B8%AA%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%84%8F%E4%B9%89.JPG)
+![内核配置的具体过程](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E5%86%85%E6%A0%B8%E9%85%8D%E7%BD%AE%E7%9A%84%E5%85%B7%E4%BD%93%E8%BF%87%E7%A8%8B.JPG)
 ## .config 分析 -- 以 DM9000 为例
 ```
 CONFIG_DM9000=y // 为 y 表示会编译进内核，支持DM9000,会动态加载
