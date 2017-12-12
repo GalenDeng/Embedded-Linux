@@ -141,8 +141,8 @@ CONFIG_DM9000=m
 * CONFIG_DM9000=y
 
 在内核子目录的Makefile中 
-obj-y += xxx.o // 表示xxx.c最终会编译进内核里面
-obj-m += xxx.o // xxx.c => xxx.ko   xxx.c最终被编译成可加载的模块(xxx.ko)
+obj-y += xxx.o // 表示xxx.c or xxx.S最终会编译进内核里面
+obj-m += xxx.o // xxx.c or xxx.S => xxx.ko   xxx.c最终被编译成可加载的模块(xxx.ko)[驱动程序]
 ```
 ## 所以 make uImage 实现了以下的功能
 1. `配置生成 .config`
@@ -150,3 +150,159 @@ obj-m += xxx.o // xxx.c => xxx.ko   xxx.c最终被编译成可加载的模块(xx
 3. `.config  生成 include/linux/autoconf.h 被顶层的Makefile包含，供子目录的Makefile使用`
 ## 分析 Makefile
 * 通过第一个文件 , 链接脚本 -- 顺藤摸瓜
+* linux中一个Makefile文件只负责生成当前目录下的目标文件，子目录下的目标文件由子目录的Makefile生成
+## 多个源文件的模块(module)，除在obj-m中增加一个.o文件外，还需要
+## 定义一个<module name>-objs变量来告诉Makefile这个.o文件由哪些文件组成
+```
+#driver/isdn/i41/Makefile
+# Each configuration option enables a list of files.
+obj-$(CONFIG_ISDN_I4L)          += isdn.o
+obj-$(CONFIG_ISDN_PPP_BSDCOMP)  += isdn_bsdcomp.o
+# Multipart objects.
+isdn-objs                         := isdn_net.o isdn_tty.o isdn_v110.o isdn_common.o
+```
+* fs/Makefile
+```
+obj-$(CONFIG_JFFS2_FS)    += jffs2/    // 当 CONFIG_JFFS2_FS被定义为y或m时，在编译时将会进入jffs2/目录进行编译
+```
+## linux 内核版本查看
+* /linux-2.6.22.6$ vim Makefile  // 2.6.22.6
+```
+VERSION = 2
+PATCHLEVEL = 6    // 以上我主版本
+SUBLEVEL = 22
+EXTRAVERSION = .6 // 后两个为次版本
+```
+* EXTRAVERSION = -rc6 // 表示测试版本
+## 打补丁注意事项
+```
+补丁文件 patch-2.6.xx.1 patch-2.6.xx.2  patch-2.6.xx.3,他们都是基于内核2.6xx生成的补丁文件，
+使用时可以在内核2.6xx上直接打补丁 patch-2.6.xx.3,并不需要先打上补丁patch-2.6.xx.1、patch-2.6.xx.2,
+相应的,在打补丁 patch-2.6.xx.3前，要先去除patch-2.6.xx.2
+```
+## kernel官网各标记符意义
+![kernel官网各标记符意义](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/kernel%E5%AE%98%E7%BD%91%E5%90%84%E6%A0%87%E8%AE%B0%E7%AC%A6%E6%84%8F%E4%B9%89.JPG)
+## linux内核子目录结构
+![linux内核子目录结构](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8%E5%AD%90%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.JPG)
+## linux内核源码层次结构
+![linux内核源码层次结构](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.JPG)
+## 内核的Makefile的作用、用法讲解文件
+* /linux-2.6.22.6$ cat ./Documentation/kbuild/makefiles.txt 
+## linux内核Makefile文件分类
+![linux内核Makefile文件分类](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8Makefile%E6%96%87%E4%BB%B6%E5%88%86%E7%B1%BB.JPG)
+## 怎样编译文件
+![怎样编译文件](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E6%80%8E%E6%A0%B7%E7%BC%96%E8%AF%91%E6%96%87%E4%BB%B6.JPG)
+## 怎样连接文件及顺序特点(简介patsubst字符串处理函数的用法)
+![怎样连接文件及顺序特点](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E6%96%87%E4%BB%B6%E5%8F%8A%E9%A1%BA%E5%BA%8F%E7%89%B9%E7%82%B9.JPG)
+## linux内核的Makefile总结
+![linux内核的Makefile总结](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8%E7%9A%84Makefile%E6%80%BB%E7%BB%93.JPG)
+* vmlinux -- 内核映像文件
+* 分析的时候，顶层的Makefile
+```
+顶层Makefile包括： galen@HD66:/work/linux-2.6-transplant/linux-2.6.22.6$  vim Makefile
+include $(srctree)/arch/$(ARCH)/Makefile
+all: vmlinux        // 顶层的第一个目标就是生成一个vmlinux的内核映像文件
+vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
+            链接脚本         初始化           核心代码   
+
+vmlinux-init := $(head-y) $(init-y)   //(head-y 在顶层没定义 ，则一定在 arch(架构)里面定义的 
+// /arch/arm/Makefile head-y		:= arch/arm/kernel/head$(MMUEXT).o arch/arm/kernel/init_task.o 
+// $(MMUEXT) 为空的话 head$(MMUEXT).o  => head.o
+// init-y		:= init/ ; 
+// init-y		:= $(patsubst %/, %/built-in.o, $(init-y)) 意思是：init-y  =  init/built-in.o
+
+vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
+// core-y		:= usr/
+// core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
+// core-y		:= $(patsubst %/, %/built-in.o, $(core-y))  意思是：
+// core-y = usr/built-in.o  kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o crypto/built-in.o block/built-in.o
+
+// libs-y		:= lib/
+// libs-y1		:= $(patsubst %/, %/lib.a, $(libs-y))
+// libs-y2		:= $(patsubst %/, %/built-in.o, $(libs-y))
+// libs-y		:= $(libs-y1) $(libs-y2)   意思是：
+// libs-y = lib/lib.a lib/built.o
+
+
+// drivers-y	:= drivers/ sound/
+// drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y)) 意思是：
+// drivers-y =   drivers/built-in.o  sound/built-in.o
+
+// net-y		:= net/
+// net-y		:= $(patsubst %/, %/built-in.o, $(net-y))  意思是：
+// net-y = net/built-in.o
+
+vmlinux-all  := $(vmlinux-init) $(vmlinux-main)
+vmlinux-lds  := arch/$(ARCH)/kernel/vmlinux.lds
+export KBUILD_VMLINUX_OBJS := $(vmlinux-all)         
+```
+* make uImage => /arch/arm/Makefile
+```
+./arch/arm/ Makefile
+zImage Image xipImage bootpImage uImage: vmlinux    // uImage依赖于vmlinux
+```
+## 分析原材料怎么编译的，除了分析Makefile文件，还可以通过编译内核来查看
+1. `原材料`
+```
+* head-y		:= arch/arm/kernel/head$(MMUEXT).o arch/arm/kernel/init_task.o 
+* init-y  =  init/built-in.o
+* core-y = usr/built-in.o  kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o crypto/built-in.o block/built-in.o
+* libs-y = lib/lib.a lib/built.o
+* drivers-y =   drivers/built-in.o  sound/built-in.o
+* net-y = net/built-in.o
+```
+2. `编译方式-- 法一： 分析顶层Makefile`
+* vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
+* `代码太庞大了，我们没有精力去做`
+```
+# vmlinux image - including updated kernel symbols
+vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
+ifdef CONFIG_HEADERS_CHECK
+	$(Q)$(MAKE) -f $(srctree)/Makefile headers_check
+endif
+	$(call if_changed_rule,vmlinux__)
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost $@
+	$(Q)rm -f .old_version
+  ...
+```
+3. `编译方式-- 法二：通过编译内核来分析`
+* `删除内核映像文件 -- vmlinux`
+```
+* galen@HD66:/work/linux-2.6-transplant/linux-2.6.22.6$ rm vmlinux 
+```
+* `make`
+```
+* galen@HD66:/work/linux-2.6-transplant/linux-2.6.22.6$ make uImage V=1
+* V=1   // 把命令更加详细的罗列出来
+```
+* `关注最后的命令`
+```
+arm-linux-ld -EL  -p --no-undefined -X -o vmlinux   // 链接  输出内核vmlinux
+
+-T arch/arm/kernel/vmlinux.lds     // 链接脚本 决定链接的方式
+
+arch/arm/kernel/head.o arch/arm/kernel/init_task.o 
+//  第一个文件 ：arch/arm/kernel/head.S (应该是汇编)
+//  链接脚本 :  arch/arm/kernel/vmlinux.lds
+init/built-in.o 
+
+--start-group  usr/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o  arch/arm/common/built-in.o  arch/arm/mach-s3c2410/built-in.o  arch/arm/mach-s3c2400/built-in.o  arch/arm/mach-s3c2412/built-in.o  arch/arm/mach-s3c2440/built-in.o  arch/arm/mach-s3c2442/built-in.o  arch/arm/mach-s3c2443/built-in.o  arch/arm/nwfpe/built-in.o  arch/arm/plat-s3c24xx/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  block/built-in.o  arch/arm/lib/lib.a  lib/lib.a  arch/arm/lib/built-in.o  lib/built-in.o  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group .tmp_kallsyms2.o
+```
+* `打开 vmlinux.lds`
+```
+SECTIONS
+{
+ . = (0xc0000000) + 0x00008000;       // 虚拟地址
+
+ .text.head : {                       
+  _stext = .;
+  _sinittext = .;
+  *(.text.head)   
+//放所有文件的head.o 放的顺序为 vmlinux: $(vmlinux-lds) $(vmlinux-init) $  (vmlinux-main) $(kallsyms.o) FORCE 
+// vmlinux-init := $(head-y) $(init-y)
+// vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
+ }
+
+ .init : { /* Init code and data		*/
+......
+```
