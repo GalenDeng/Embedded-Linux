@@ -306,3 +306,5 @@ SECTIONS
  .init : { /* Init code and data		*/
 ......
 ```
+## 内核启动流程之Makefile的作用
+![内核启动流程之Makefile的作用](https://github.com/GalenDeng/Embedded-Linux/blob/master/19.%20%E7%A7%BB%E6%A4%8Dlinux%E5%86%85%E6%A0%B8/linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E7%BC%96%E8%AF%91%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E4%B9%8BMakefile%E7%9A%84%E4%BD%9C%E7%94%A8.JPG)
