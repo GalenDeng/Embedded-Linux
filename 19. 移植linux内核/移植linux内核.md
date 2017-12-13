@@ -14,7 +14,7 @@ ateb9200_defconfig       edb7211_defconfig     iop32x_defconfig      lpd270_defc
 badge4_defconfig         ep93xx_defconfig      iop33x_defconfig      lpd7a400_defconfig    omap_h2_1610_defconfig  shannon_defconfig
 carmeva_defconfig        footbridge_defconfig  ixp2000_defconfig     lpd7a404_defconfig    onearm_defconfig        shark_defconfig
 ```
-3. `默认配置 -- make make s3c2410_defconfig 实现把 配置保存到 .config中`
+3. `默认配置 --  make s3c2410_defconfig 实现把 配置保存到 .config中`
 * galen@HD66:/work/linux-2.6-transplant/linux-2.6.22.6$ make s3c2410_defconfig
 
 4. `make menuconfig修改菜单项 -- 读取 .config`
