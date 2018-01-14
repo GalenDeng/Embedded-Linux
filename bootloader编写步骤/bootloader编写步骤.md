@@ -197,7 +197,7 @@ void	setup_commandline_tag(char *cmdline)
 105 => 27  *4   108
 ```
 ## len向四取整的理解
-![len向四取整的理解]()https://github.com/GalenDeng/Embedded-Linux/blob/master/bootloader%E7%BC%96%E5%86%99%E6%AD%A5%E9%AA%A4/bootloader%E7%BC%96%E5%86%99%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/len%E5%90%91%E5%9B%9B%E5%8F%96%E6%95%B4%E7%9A%84%E7%90%86%E8%A7%A3.JPG
+![len向四取整的理解](https://github.com/GalenDeng/Embedded-Linux/blob/master/bootloader%E7%BC%96%E5%86%99%E6%AD%A5%E9%AA%A4/bootloader%E7%BC%96%E5%86%99%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/len%E5%90%91%E5%9B%9B%E5%8F%96%E6%95%B4%E7%9A%84%E7%90%86%E8%A7%A3.JPG)
 12. `bootargs`
 ```
 bootargs=noinitrd root=/dev/nfs nfsroot=192.168.99.140:/work/nfs_root/app,rsize=1024,wsize=1024 ip=192.168.99.135:192.168.99.140:192.168.99.4:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0
