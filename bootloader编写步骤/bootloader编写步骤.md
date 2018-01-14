@@ -298,3 +298,86 @@ SECTIONS {
 	__bss_end = . ;
 }
 ```
+20. `通过 boot.dis反汇编文件和 start.S来查看代码的大小`
+```
+33f80050:	eb000031 	bl	33f8011c <nand_init>
+33f80054:	e3a00000 	mov	r0, #0	; 0x0
+33f80058:	e59f1058 	ldr	r1, [pc, #88]	; 33f800b8 <sdram_config+0x40>    // 33f800b8
+33f8005c:	e59f2058 	ldr	r2, [pc, #88]	; 33f800bc <sdram_config+0x44>    // 33f800bc
+33f80060:	e0422001 	sub	r2, r2, r1
+33f80064:	eb0000cc 	bl	33f8039c <copy_code_to_sdram>
+
+33f800b8:	33f80000 	mvnccs	r0, #0	; 0x0
+33f800bc:	33f80790 	mvnccs	r0, #37748736	; 0x2400000
+
+* 所以代码大小为: 33f80790 - 33f80000 = 790(hex) = 1936
+* 而从linux系统中也能看到其代码大小大致相同 (1933) --- ( 使用 . = ALIGN(4)取整 把 1933 变为 1936)
+galen@HD66:/work/nfs_root/bootloader-write-myself/1th$ ls -lt boot.bin 
+-rwxrwxr-x 1 galen galen 1933 Jan 13 13:57 boot.bin
+```
+21. `mtd ; nand dump 60000`
+```
+OpenJTAG> mtd  
+
+device nand0 <nandflash0>, # parts = 4
+ #: name                        size            offset          mask_flags
+ 0: bootloader          0x00040000      0x00000000      0
+ 1: params              0x00020000      0x00040000      0
+ 2: kernel              0x00200000      0x00060000      0
+ 3: root                0x0fda0000      0x00260000      0
+
+active partition: nand0,0 - (bootloader) 0x00040000 @ 0x00000000
+
+defaults:
+mtdids  : nand0=nandflash0
+mtdparts: mtdparts=nandflash0:256k@0(bootloader),128k(params),2m(kernel),-(root)
+OpenJTAG> nand dump 60000
+Page 00060000 dump:
+        27 05 19 56 47 76 ea 15  51 8d ee be 00 1c 35 5c
+        30 00 80 00 30 00 80 00  e3 00 1c fb 05 02 02 00
+        4c 69 6e 75 78 2d 32 2e  36 2e 32 32 2e 36 00 00
+        00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00      //  前面的4行表示头部 --- 64字节
+
+        // 真正的内核 0x30008000
+        00 00 a0 e1 00 00 a0 e1  00 00 a0 e1 00 00 a0 e1
+        00 00 a0 e1 00 00 a0 e1  00 00 a0 e1 00 00 a0 e1
+        02 00 00 ea 18 28 6f 01  00 00 00 00 5c 35 1c 00
+        01 70 a0 e1 02 80 a0 e1  00 20 0f e1 03 00 12 e3
+        01 00 00 1a 17 00 a0 e3  56 34 12 ef 00 20 0f e1
+        c0 20 82 e3 02 f0 21 e1  00 00 00 00 00 00 00 00
+        d0 00 8f e2 7e 30 90 e8  01 00 50 e0 0a 00 00 0a
+        00 50 85 e0 00 60 86 e0  00 c0 8c e0 00 20 82 e0
+
+OOB:                                                         // ECC校验
+        ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff
+        95 9a 97 96 a5 6b 0f 3f
+        03 f3 cc 33 03 0f f3 5a
+        9a 5b 96 59 ab ff fc cf
+OpenJTAG> 
+```
+22. `16进制显示`
+```
+void puthex(unsigned int val)
+{
+	/* 0x1234abcd */
+	int i;
+	int j;
+	
+	puts("0x");
+
+	for (i = 0; i < 8; i++)
+	{
+		j = (val >> ((7-i)*4)) & 0xf;
+		if ((j >= 0) && (j <= 9))
+			putc('0' + j);
+		else
+			putc('A' + j - 0xa);
+		
+	}
+	
+}
+```
