@@ -229,3 +229,72 @@ int arch => 362   /* ldr r1, =362 */
 ```
 ## 设置参数图解
 ![设置参数列表分析](https://github.com/GalenDeng/Embedded-Linux/blob/master/bootloader%E7%BC%96%E5%86%99%E6%AD%A5%E9%AA%A4/bootloader%E7%BC%96%E5%86%99%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/%E8%AE%BE%E7%BD%AE%E5%8F%82%E6%95%B0%E5%88%97%E8%A1%A8%E5%88%86%E6%9E%90.png)
+14. `设置串口`
+```
+* 启动过程中需要有打印信息提示用户启动过程中的状态，所以我们需要初始化一个串口
+```
+* /* 0. 帮内核设置串口: 内核启动的开始部分会从串口打印一些信息,但是内核一开始没有初始化串口 */
+*	uart0_init();
+15.`\r \n \n\r` 
+```
+\n是换行，英文是New line，表示使光标到行首
+\r是回车，英文是Carriage return，表示使光标下移一格
+\r\n表示回车换行
+```
+* puts("Copy kernel from nand\n\r");
+16. `arm-linux-ar`
+* AR 		= arm-linux-ar    // AR : 把所有的东西整合成一个库
+17. `make出现的问题解决`
+```
+* 1. 要进行外部声明
+oot.c:70: warning: implicit declaration of function `uart0_init'
+boot.c:73: warning: implicit declaration of function `puts'
+boot.c:74: warning: implicit declaration of function `nand_read'
+* 2. 删除该行代码，因为没用
+boot.c:41: warning: unused variable `tmp'
+* 3. 和系统库的strcpy和puts冲突，在Makefile中的 CPPFLAGS 添加 -nostdlib -nostdinc -fno-builtin
+* 即 CPPFLAGS   	:= -nostdinc -nostdlib -fno-builtin
+boot.c:40: warning: conflicting types for built-in function 'strcpy'
+init.c:201: warning: conflicting types for built-in function 'puts'
+* 4.出现以下的问题,用 touch boot.c(文件名)更新文件的系统时间即可
+galen@HD66:/work/nfs_root/bootloader-write-myself/1th$ make
+make: Warning: File `boot.c' has modification time 9.4e+04 s in the future
+arm-linux-gcc -nostdinc -nostdlib -fno-builtin -Wall -O2 -c -o boot.o boot.c
+arm-linux-ld -Tboot.lds -o boot.elf start.o init.o boot.o
+arm-linux-objcopy -O binary -S boot.elf boot.bin
+arm-linux-objdump -D -m arm boot.elf > boot.dis
+make: warning:  Clock skew detected.  Your build may be incomplete.
+galen@HD66:/work/nfs_root/bootloader-write-myself/1th$ touch boot.c
+```
+18. 
+```
+* 33f80034:	e28f103c 	add	r1, pc, #60	; 0x3c   
+// 有 PC 就必须在原来的值下加上 8 , 这里是 pc = 34 +8 = 3c , 所以 3c + 3c = 78; 即跳到 33f80078
+// 即是
+33f80078 <sdram_config>:
+33f80078:	22011110 	andcs	r1, r1, #4	; 0x4
+```
+19. `start.S boot.lds boot.dis的联系 `
+```
+* boot.dis
+* 33f80058:	e59f1058 	ldr	r1, [pc, #88]	; 33f800b8 <sdram_config+0x40>
+
+* 33f800b8:	33f80000 	mvnccs	r0, #0	; 0x0   // 33f80000
+
+* boot.lds
+SECTIONS {
+	. = 0x33f80000;
+	.text : { *(.text) }
+
+	. = ALIGN(4);	
+	.rodata : { *(.rodata) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	__bss_start = . ;
+	.bss : { *(.bss) *(COMMON) }
+	__bss_end = . ;
+}
+```
