@@ -1,10 +1,14 @@
 ## bootloader编写步骤 (2018.1.4)
-* 最简单的bootloader的编写步骤
+* `最简单的bootloader的编写步骤`
 1. 初始化硬件、关看门狗、设置SDRAM、初始化Nand Flash
 2. 如果bootloader比较大，要把它重定位到SDRAM
 2. 把内核从Nand flash读到SDRAM
 3. 设置“要传给内核的参数”
 4. 跳转执行内核
+
+* `改进 --- 提高内核启动的速度`
+1. 改变时钟: 200MHZ => 400MHZ , 记住这个时候还要改变分频系数 // 实践结果表示:提高频率对提高内核的启动速度影响不大
+2. 启动ICACHE (如果要启动DCACHE的话，需要MMU,设置虚拟地址的映射)
 
 1. nand flash
 * OOB : out of bank : 这个结构的出现是因为nand flash的缺陷:位反转
@@ -381,3 +385,103 @@ void puthex(unsigned int val)
 	
 }
 ```
+23. `判断内核是否被 nand_read正常读取的方法`
+```
+        // 真正的内核 0x30008000  
+        00 00 a0 e1 00 00 a0 e1  00 00 a0 e1 00 00 a0 e1	// 为 e1a00000
+而从启动的内核来看：
+Copy kernel from nand
+0x1234ABCD
+0xE1A00000	// 和 nand dump 60000 命令抓取到的正常内核启动内容 e1a00000 一样， 即 nand_read()读取成功
+而从启动的内核来看：
+Set boot params
+Boot kernel
+Uncompressing Linux......
+```
+24. `ICACHE加速内核启动速度 --- cpu/arm920t`
+```
+1. uboot源码中搜索 ICACHE =>  icache_enable
+*  icache_enable
+void icache_enable (void)
+{
+	ulong reg;
+
+	reg = read_p15_c1 ();		/* get control reg. */
+	cp_delay ();
+	write_p15_c1 (reg | C1_IC);
+}
+
+* read_p15_c1 ()
+/* read co-processor 15, register #1 (control register) */
+static unsigned long read_p15_c1 (void)
+{
+	unsigned long value;
+
+	__asm__ __volatile__(
+		"mrc	p15, 0, %0, c1, c0, 0   @ read control reg\n"
+		: "=r" (value)
+		:
+		: "memory");
+
+#ifdef MMU_DEBUG
+	printf ("p15/c1 is = %08lx\n", value);
+#endif
+	return value;
+}
+
+* 取 mrc	p15, 0, %0, c1, c0, 0   @ read control reg
+// mrc : 
+* MRC指令将协处理器的寄存器中数值传送到ARM处理器的寄存器中。如果协处理器不能成功地执行该操作，将产生未定义的指令异常中断
+* MCR指令将ARM处理器的寄存器中的数据传送到协处理器的寄存器中。如果协处理器不能成功地执行该操作，将产生未定义的指令异常中断
+* 协处理器可以通过一组专门的、提供load-store类型接口的ARM指令来访问。例如协处理器15（CP15），ARM处理器使用协处理器15的寄存器来控制cache、TCM和存储器管理
+// mrc ； mov register compilation(编辑/编译/汇编)
+
+* 修改 mrc	p15, 0, r0, c1, c0, 0   @ read control reg	// 从协处理器中读取值到r0中
+* 由 write_p15_c1 (reg | C1_IC); 且 #define C1_IC		(1<<12)		/* icache off/on */ 所以得出
+  orr 	r0, r0, #(1 << 12)		// r0 = r0 | (1 << 12)
+* 又因为 
+/* write to co-processor 15, register #1 (control register) */
+static void write_p15_c1 (unsigned long value)
+{
+#ifdef MMU_DEBUG
+	printf ("write %08lx to p15/c1\n", value);
+#endif
+	__asm__ __volatile__(
+		"mcr	p15, 0, %0, c1, c0, 0   @ write it back\n"
+		:
+		: "r" (value)
+		: "memory");
+
+	read_p15_c1 ();
+}
+* 所以要把值写回到协处理器里面,即
+* mcr	p15, 0, r0, c1, c0, 0   @ write it back
+* ICACHE启动总结；
+
+/* 启动ICACHE */  ----  12s 变为 2s 启动  => ICACHE的威力
+ mrc	p15, 0, r0, c1, c0, 0   @ read control reg
+ orr 	r0, r0, #(1 << 12)
+ mcr	p15, 0, r0, c1, c0, 0   @ write it back
+```
+25. `orr`
+```
+2，orr
+ORR指令的格式为：
+ORR{条件}{S}  目的寄存器，操作数1，操作数2
+ORR指令用于在两个操作数上进行逻辑戒运算，并把结果放置到目的寄存器中。操作数1应该是一
+个寄存器，操作数2可以是一个寄存器，被移位的寄存器，或一个立即数。该指令常用于设置操
+作数1的某些位。
+指令示例：
+ORR R0，R0，＃3          ；  该指令设置R0的0、1位，其余位保持不变。
+
+orr r0,r0,#0xd3
+    0xd3=1101 0111
+    将r0与0xd3作算数或运算，然后将结果返还给r0,即把r0的bit[7:6]和bit[4]和bit[2:0]置为1
+```
+26. `ICACHE理解`
+* 如下图，如果没有ICACHE的话,在内核启动的过程中,运行地址一直在CPU和SDRAM之间来回切换，在SDRAM取指令，在CPU中执行;
+* 有了ICACHE(指令缓存)后,我们在第一次取SDRAM的指令的时候会把一部分的指令代码缓存到ICACHE中，下次CPU需要指令的时候
+* 现在ICACHE中看有没有相对应的指令，有的话就直接使用,没有的时候才从SDRAM取指令(这个时候也会取一部分的指令代码再次
+* 放到ICACHE中,方便使用,提高效率)
+## ICACHE理解图示
+![ICACHE理解图示](https://github.com/GalenDeng/Embedded-Linux/blob/master/bootloader%E7%BC%96%E5%86%99%E6%AD%A5%E9%AA%A4/bootloader%E7%BC%96%E5%86%99%E5%9B%BE%E7%89%87%E7%AC%94%E8%AE%B0/ICACHE%E7%90%86%E8%A7%A3.JPG)
