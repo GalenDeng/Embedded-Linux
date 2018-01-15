@@ -1,0 +1,27 @@
+1th: question
+galen@HD66:/work/nfs_root/bootloader-write-myself/1th$ make
+make: Warning: File `Makefile' has modification time 9.4e+04 s in the future
+arm-linux-gcc -nostdinc -Wall -O2 -c -o start.o start.S	 
+arm-linux-gcc -nostdinc -Wall -O2 -c -o init.o init.c
+init.c: In function `copy_code_to_sdram':
+init.c:61: error: `nand_read' undeclared (first use in this function)
+init.c:61: error: (Each undeclared identifier is reported only once
+init.c:61: error: for each function it appears in.)
+init.c:61: error: syntax error before '}' token
+init.c: In function `nand_read':
+init.c:142: error: invalid operands to binary %
+init.c:151: warning: passing arg 1 of `nand_addr' makes integer from pointer without a cast
+init.c: In function `uart0_init':
+init.c:185: error: `sUART_CLK' undeclared (first use in this function)
+init.c:185: error: syntax error before "x"
+init.c:185: error: stray '\226' in program
+init.c:185: error: stray '\128' in program
+init.c:185: error: stray '\147' in program
+init.c: In function `putc':
+init.c:193: error: syntax error before ';' token
+init.c:191: warning: unused variable `i'
+init.c: At top level:
+init.c:199: warning: conflicting types for built-in function 'puts'
+init.c:226:2: warning: no newline at end of file
+make: *** [init.o] Error 1
+galen@HD66:/work/nfs_root/bootloader-write-myself/1th$ 
